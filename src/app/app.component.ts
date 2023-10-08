@@ -27,6 +27,7 @@ interface printers {
 
 export class AppComponent implements OnInit{
   title = 'printer_key_assignment.front';
+  loading:boolean = false;
 
   
   printers: printers[] = [];
@@ -131,29 +132,35 @@ this.http.get<any>(url).pipe(
 
     if(this.duplicateRegistryCheck()){
       this.messageService.add({severity:'warn', detail:'Usuario ya existente, no se puede volver a registrar.'});
-    }else{
       
-    this.clipboardService.copy(code.toString());
-    this.messageService.addAll([
-      { severity: 'success', detail: 'Registro exitoso' },
-      { severity: 'info', detail: 'codigo copiado al portapapeles' }
-    ]);
-
-      this.validateInputs();
+    }else{
+      this.loading = true;
       this.sendRegistries();
-      this.clear();
+      this.clipboardService.copy(code.toString());
+      
       
       
       }
     }
+  }
+  successMesage(){
+    this.messageService.addAll([
+      { severity: 'success', detail: 'Registro exitoso' },
+      { severity: 'info', detail: 'codigo copiado al portapapeles' }
+    ]);
   }
 
   sendRegistries() {
     this.registryService.createRegistry(this.registry).subscribe({
       next: response => {
         console.log(response);
-          this.getRegistry();
-        
+        this.getRegistry();
+        this.loading = false;
+        this.successMesage();
+        this.validateInputs();
+        this.clear();
+      
+          
       },
       error: error => {
         console.error('Error al registrar', error);
@@ -222,5 +229,6 @@ clear(){
   this.selectedPrinter = [];
   this.email = '';
 }
+
 
 }

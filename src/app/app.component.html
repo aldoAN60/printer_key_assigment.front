@@ -33,7 +33,7 @@
             </div>
           </div>
           <div class="mt-3 flex flex-column align-items-center">
-            <p-button pRipple label="Generate code" styleClass="p-button-rounded text-primary-600 p-button-outlined"  (onClick)="generateRegistry()"></p-button>
+            <p-button pRipple label="Generate code" [loading]="loading" styleClass="p-button-rounded text-primary-600 p-button-outlined"  (onClick)="generateRegistry()"></p-button>
           </div>
         </div>
       </div>
