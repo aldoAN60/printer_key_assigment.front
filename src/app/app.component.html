@@ -16,6 +16,7 @@
                 optionLabel="printer_name"
                 inputId="float-label"
                 [showToggleAll]="false"
+                [ngClass]="{'ng-invalid ng-dirty': printerInput}"
                 class="{{ this.printerInput ? 'ng-invalid ng-dirty' : null }}"
                 (onChange)="onChange($event)">
               </p-multiSelect>
@@ -27,8 +28,8 @@
               <span class="p-inputgroup-addon">
                 <i class="pi pi-at"></i>
               </span>
-              <input pInputText placeholder="Email user"  [(ngModel)]="email"  name="email" class="{{this.emailInput ? 'ng-invalid ng-dirty' : null}} " required />
-              
+              <input pInputText placeholder="Email user" [(ngModel)]="email" name="email" [ngClass]="{'ng-invalid ng-dirty': emailInput}" required />
+
             </div>
           </div>
           <div class="mt-3 flex flex-column align-items-center">
