@@ -1,0 +1,19 @@
+
+<p-table [value]="registry">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>No. Registry</th>
+            <th>User email</th>
+            <th>code</th>
+            <th>printer</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-reg>
+        <tr>
+            <td>{{ reg.id_registry }}</td>
+            <td>{{ reg.email }}</td>
+            <td>{{ reg.code }}</td>
+            <td>{{ reg.printer_name }}</td>
+        </tr>
+    </ng-template>
+</p-table>

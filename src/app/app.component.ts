@@ -66,13 +66,13 @@ export class AppComponent implements OnInit{
       await this.getPrinters();
       await this.getCodes();
       await this.getRegistry();
+      
     } catch (error) {
       this.messageService.add({severity:'error', detail:'Error en una de las funciones:'});
     } finally {
       this.isLoading = false; // Ocultar el loader, ya sea que las funciones se completen o haya un error
     }
   }
-  
 
   onChange(event: any) {
     

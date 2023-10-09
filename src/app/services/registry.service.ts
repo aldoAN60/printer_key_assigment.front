@@ -14,4 +14,9 @@ export class RegistryService {
     const url = `${this.baseUrl}/registry-post`;
     return this.http.post(url, registryData);
   }
+
+getRegistry(){
+  const url = this.baseUrl+'/getRegistry';
+  return this.http.get(url);
+}
 }

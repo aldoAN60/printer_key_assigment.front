@@ -15,11 +15,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService  } from 'primeng/api';
 import { ClipboardModule } from 'ngx-clipboard'; 
 import { HttpClientModule } from '@angular/common/http';
-
+import { TableComponent } from './table/table.component';
+import { TableModule } from 'primeng/table';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +36,8 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     ToastModule,
     ClipboardModule,
-    HttpClientModule
+    HttpClientModule,
+    TableModule
     
 
   ],
