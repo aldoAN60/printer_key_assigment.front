@@ -1,7 +1,12 @@
-<header class="fadeinup animation-duration-1000">
+<div *ngIf="isLoading" class="absolute surface-0 top-0 bottom-0 left-0 right-0 z-5">
+  <div class="absolute " style="top: 45%; left: 45%;">
+    <div class="loader"></div>
+  </div>  
+</div>
+<header *ngIf="!isLoading" class="fadeinup animation-duration-1000">
   <h1 class="text-red-700 lg:text-5xl sm:text-1xl text-center uppercase">printer key assignment</h1>
 </header>
-<main class="flex justify-content-center fadeindown animation-duration-1000">
+<main *ngIf="!isLoading" class="flex justify-content-center fadeindown animation-duration-1000">
   <div class="w-10">
     <p-card header="User registry" >
       <div class="flex justify-content-center">

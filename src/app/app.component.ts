@@ -28,6 +28,8 @@ interface printers {
 export class AppComponent implements OnInit{
   title = 'printer_key_assignment.front';
   loading:boolean = false;
+  isLoading: boolean = false;
+
 
   
   printers: printers[] = [];
@@ -54,12 +56,24 @@ export class AppComponent implements OnInit{
     private registryService: RegistryService
     ) {}
   ngOnInit() {
-    this.getPrinters();
-    this.getCodes();
-    this.getRegistry();
-    //this.duplicateRegistryCheck();
+    this.initGets();
       
   }
+  async initGets() {
+    try {
+      this.isLoading = true; // Mostrar el loader
+  
+      await this.getPrinters();
+      await this.getCodes();
+      await this.getRegistry();
+    } catch (error) {
+      this.messageService.add({severity:'error', detail:'Error en una de las funciones:'});
+    } finally {
+      this.isLoading = false; // Ocultar el loader, ya sea que las funciones se completen o haya un error
+    }
+  }
+  
+
   onChange(event: any) {
     
     if (this.selectedPrinter.length > this.maxSelections) {
@@ -70,46 +84,60 @@ export class AppComponent implements OnInit{
   }
 /****get metods****/
 
-  getPrinters = () => {
-    const url = urlAPI+'/printers';
+  getPrinters(){
+    return new Promise<void>((resolve, reject) => {
+      const url = urlAPI+'/printers';
 
-    this.http.get<any>(url).pipe(
-      tap((data) => {
-        this.printers = data;
-      }),
-      catchError((error:any)=>{
-        console.error(error);
-        return of(null);
-      })
-    ).subscribe();
+      this.http.get<any>(url).pipe(
+        tap((data) => {
+          this.printers = data;
+          resolve();
+        }),
+        catchError((error:any)=>{
+          console.error(error);
+          reject();
+          return of(null);
+        })
+      ).subscribe();
+    });
+    
 
   }
   getCodes(){
-    const url = urlAPI+'/duplicateCodes';
-    this.http.get<any>(url).pipe(
-      tap((data) => {
-        this.arrayCodes = data;
-      }),
-      catchError((error: any)=>{
-        console.error(error);
-        return of(null);
-      })
-    ).subscribe();
+    return new Promise<void>((resolve,reject)=>{
+
+      const url = urlAPI+'/duplicateCodes';
+      this.http.get<any>(url).pipe(
+        tap((data) => {
+          this.arrayCodes = data;
+          resolve();
+        }),
+        catchError((error: any)=>{
+          console.error(error);
+          reject();
+          return of(null);
+        })
+      ).subscribe();
+    });
   }
 
   getRegistry(){
-const url = urlAPI+'/duplicateRegistry';
-this.http.get<any>(url).pipe(
-  tap((data) => {
-    console.log(data);
-    this.arrRegistry = data;
-  }),
-  catchError((error: any) => {
-    console.error(error);
-    return of (null);
-  })
-).subscribe();
+    return new Promise<void>((resolve,reject)=>{
 
+      const url = urlAPI+'/duplicateRegistry';
+      this.http.get<any>(url).pipe(
+        tap((data) => {
+          this.arrRegistry = data;
+          resolve();
+        }),
+        catchError((error: any) => {
+          console.error(error);
+          reject();
+          return of (null);
+        })
+      ).subscribe();
+      
+    });
   }
   
 
@@ -117,7 +145,7 @@ this.http.get<any>(url).pipe(
 /*****POST METHODS******/
 
 
-  generateRegistry(){
+  async generateRegistry(){
     if(this.email === '' || this.selectedPrinter === undefined){
       this.errorMessage();
     }else{
@@ -133,14 +161,20 @@ this.http.get<any>(url).pipe(
     if(this.duplicateRegistryCheck()){
       this.messageService.add({severity:'warn', detail:'Usuario ya existente, no se puede volver a registrar.'});
       
-    }else{
+    } else {
+
+      try {
       this.loading = true;
-      this.sendRegistries();
+      await this.sendRegistries(); // Espera a que sendRegistries se complete antes de continuar
+      this.loading = false;
       this.clipboardService.copy(code.toString());
-      
-      
-      
+      this.successMesage();
+      this.validateInputs();
+      this.clear(); 
+      } catch (error) {
+        this.messageService.add({ severity: 'error', detail: 'Hubo un error al registrar.' });
       }
+    }
     }
   }
   successMesage(){
@@ -150,21 +184,22 @@ this.http.get<any>(url).pipe(
     ]);
   }
 
-  sendRegistries() {
-    this.registryService.createRegistry(this.registry).subscribe({
-      next: response => {
-        console.log(response);
-        this.getRegistry();
-        this.loading = false;
-        this.successMesage();
-        this.validateInputs();
-        this.clear();
-      
-          
-      },
-      error: error => {
-        console.error('Error al registrar', error);
-      }
+  async sendRegistries() {
+    return new Promise<void>((resolve, reject) =>{
+
+      this.registryService.createRegistry(this.registry).subscribe({
+        next: response => {
+          console.log(response);
+          this.getRegistry();
+          resolve();
+        
+            
+        },
+        error: error => {
+          console.error('Error al registrar', error);
+          reject(error);
+        }
+      });
     });
   }
 
@@ -193,15 +228,16 @@ generateUniqueCode = (): string => {
 
   do {
     newCode = this.randomCode();
-  } while (this.codeExists(newCode, this.arrayCodes));
+  } while (this.codeExists(newCode, this.arrayCodes) || Number(newCode) < 3);
 
   return newCode;
 }
 duplicateRegistryCheck() {
   const unDuplicateRegistry: any[] = [];
+
   this.registry.forEach((reg: any) => {
-    const duplicates = this.arrRegistry.filter((registro: any) => registro.id_printer === reg.id_printer && registro.id_user === reg.id_user);
-    
+    const duplicates = this.arrRegistry.filter((registro: any) => registro.id_printer === reg.id_printer && registro.email === reg.email);
+
     // Si hay duplicados ejecutar la siguiente validacion
     
         // Si no hay duplicados, agrega el registro a filteredRegistry
@@ -209,8 +245,9 @@ duplicateRegistryCheck() {
           unDuplicateRegistry.push(reg);
         }
   });
-  this.registry = unDuplicateRegistry;
   
+  this.registry = unDuplicateRegistry;
+
 return this.registry.length === 0 ?  true : false ;
  //return 'h'; 
 }
