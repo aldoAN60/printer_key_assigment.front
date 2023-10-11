@@ -1,19 +1,48 @@
+<section *ngIf="!isLoading" class="table-conteiner fadeindown animation-duration-2000 mt-5">
+    <p-table  
+#dt1
+[value]="registry"
+[paginator]="true"
+[rows]="5"
+[showCurrentPageReport]="true"
+[rowsPerPageOptions]="[5, 10, 15]"
+currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+styleClass="p-datatable-striped"
+[(selection)]="selectedRegistry"
+dataKey="id_registry"
 
-<p-table [value]="registry">
+>
+<ng-template pTemplate="caption">
+    <div class="flex">
+        <span class="p-input-icon-left ml-auto">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" (input)="applyGlobalFilter($event)" placeholder="Search keyword" />
+        </span>
+    </div>
+</ng-template>
     <ng-template pTemplate="header">
         <tr>
-            <th>No. Registry</th>
-            <th>User email</th>
-            <th>code</th>
-            <th>printer</th>
+            <th style="width: 4rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="id_registry">No. Registry<p-sortIcon field="id_registry"></p-sortIcon></th>
+            <th pSortableColumn="email" >User email <p-sortIcon field="email"></p-sortIcon></th>
+            <th pSortableColumn="code">code <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="printer_name">printer <p-sortIcon field="printer_name"></p-sortIcon></th>
         </tr>
     </ng-template>
     <ng-template pTemplate="body" let-reg>
         <tr>
+            <td>
+                <p-tableCheckbox [value]="reg"></p-tableCheckbox>
+            </td>
             <td>{{ reg.id_registry }}</td>
             <td>{{ reg.email }}</td>
             <td>{{ reg.code }}</td>
-            <td>{{ reg.printer_name }}</td>
+            <td><span pTooltip="{{reg.printer_location}}" tooltipPosition="left">{{ reg.printer_name }}</span></td>
         </tr>
     </ng-template>
+
 </p-table>
+<p-button pRipple label="Generate code" styleClass="p-button-rounded text-primary-600 p-button-outlined"  (onClick)="showSelectedRegistry()"></p-button>
+</section>

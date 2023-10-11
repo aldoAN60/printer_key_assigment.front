@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { catchError, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,5 +19,9 @@ export class RegistryService {
 getRegistry(){
   const url = this.baseUrl+'/getRegistry';
   return this.http.get(url);
+}
+getPrinters(){
+    const url = this.baseUrl+'/printers';
+    return this.http.get(url);
 }
 }

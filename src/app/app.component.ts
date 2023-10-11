@@ -123,19 +123,17 @@ export class AppComponent implements OnInit{
 
   getRegistry(){
     return new Promise<void>((resolve,reject)=>{
-
-      const url = urlAPI+'/duplicateRegistry';
-      this.http.get<any>(url).pipe(
-        tap((data) => {
-          this.arrRegistry = data;
+this.registryService.getRegistry().subscribe({
+        next: response =>{
+          console.log(response);
+          this.arrRegistry = response;
           resolve();
-        }),
-        catchError((error: any) => {
-          console.error(error);
+        },
+        error: error =>{
+          console.error('error al extraer datos', error);
           reject();
-          return of (null);
-        })
-      ).subscribe();
+        }
+      });
       
     });
   }
